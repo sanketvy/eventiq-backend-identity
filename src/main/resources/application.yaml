@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: eventiq-identity
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8001/realms/eventiq
+  datasource:
+    url: jdbc:postgresql://localhost:5432/eventiq-identity
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 20000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update  # Options: update | create | validate | none
+    show-sql: true
+  config:
+    import: "consul:localhost:8500"
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        hostname: localhost
+        prefer-ip-address: false
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+        instance-id: ${spring.application.name}-${server.port}
+      config:
+        enabled: true
+        format: yaml
+        data-key: data
+server:
+  port: 9051
