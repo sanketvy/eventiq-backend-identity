@@ -4,8 +4,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Data;
+
+import java.time.LocalDate;
 
 @Entity
+@Data
 public class BillingDetails {
 
     @Id
@@ -14,9 +18,9 @@ public class BillingDetails {
 
     private String userId;
 
-    private String updatedDate;
+    private LocalDate updatedDate;
 
-    private String nextBillingDate;
+    private LocalDate nextBillingDate;
 
     private String plan;
 
@@ -24,7 +28,7 @@ public class BillingDetails {
 
     private Long eventsUsed;
 
-    private Long projectLimit;
+    private Integer projectLimit;
 
-    private Long projectsUsed;
+    private Integer projectsUsed;
 }

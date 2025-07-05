@@ -2,7 +2,9 @@ package com.eventiq.identity.service.impl;
 
 import com.eventiq.identity.constants.StatusEnum;
 import com.eventiq.identity.dto.PaymentRequest;
+import com.eventiq.identity.model.BillingDetails;
 import com.eventiq.identity.model.Payment;
+import com.eventiq.identity.repository.BillingDetailsRepository;
 import com.eventiq.identity.repository.PaymentRepository;
 import com.eventiq.identity.service.PaymentService;
 import com.stripe.exception.StripeException;
@@ -10,6 +12,7 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -18,8 +21,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     PaymentRepository paymentRepository;
 
-    public PaymentServiceImpl(PaymentRepository paymentRepository){
+    BillingDetailsRepository billingDetailsRepository;
+
+    public PaymentServiceImpl(PaymentRepository paymentRepository, BillingDetailsRepository billingDetailsRepository){
         this.paymentRepository = paymentRepository;
+        this.billingDetailsRepository = billingDetailsRepository;
     }
 
     @Override
@@ -57,6 +63,22 @@ public class PaymentServiceImpl implements PaymentService {
         if(payment.isPresent()){
             payment.get().setStatus(paymentRequest.getStatus());
             paymentRepository.save(payment.get());
+            if(paymentRequest.getStatus().equals("SUCCESS")){
+                Optional<BillingDetails> billingDetails = billingDetailsRepository.findByUserId(email);
+                if(billingDetails.isPresent()){
+                    billingDetails.get().setPlan(payment.get().getPlan());
+                    billingDetails.get().setUpdatedDate(LocalDate.now());
+                    billingDetails.get().setNextBillingDate(LocalDate.now().plusMonths(1));
+                    if(payment.get().getPlan().equals("PRO")){
+                        billingDetails.get().setEventLimit(100000L);
+                        billingDetails.get().setProjectLimit(100);
+                    } if(payment.get().getPlan().equals("ENTERPRISE")){
+                        billingDetails.get().setEventLimit(10000000L);
+                        billingDetails.get().setProjectLimit(1000);
+                    }
+                    billingDetailsRepository.save(billingDetails.get());
+                }
+            }
         } else {
             throw new RuntimeException("Invalid Payment Request");
         }

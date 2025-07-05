@@ -1,12 +1,16 @@
 package com.eventiq.identity.service.impl;
 
 import com.eventiq.identity.dto.UserProfile;
+import com.eventiq.identity.model.BillingDetails;
 import com.eventiq.identity.model.User;
+import com.eventiq.identity.repository.BillingDetailsRepository;
 import com.eventiq.identity.repository.UserRepository;
 import com.eventiq.identity.service.IdentityService;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -14,8 +18,11 @@ public class IdentityServiceImpl implements IdentityService {
 
     UserRepository userRepository;
 
-    public IdentityServiceImpl(UserRepository userRepository){
+    BillingDetailsRepository billingDetailsRepository;
+
+    public IdentityServiceImpl(UserRepository userRepository, BillingDetailsRepository billingDetailsRepository){
         this.userRepository = userRepository;
+        this.billingDetailsRepository = billingDetailsRepository;
     }
 
     @Override
@@ -62,6 +69,17 @@ public class IdentityServiceImpl implements IdentityService {
             newUser.setEmail(jwt.getClaimAsString("email"));
             newUser.setId(jwt.getClaimAsString("sub"));
             userRepository.save(newUser);
+
+            BillingDetails billingDetails = new BillingDetails();
+            billingDetails.setUserId(newUser.getEmail());
+            billingDetails.setUpdatedDate(LocalDate.now());
+            billingDetails.setPlan("FREE");
+            billingDetails.setProjectLimit(1);
+            billingDetails.setEventLimit(1000L);
+            billingDetails.setProjectsUsed(0);
+            billingDetails.setEventsUsed(0L);
+
+            billingDetailsRepository.save(billingDetails);
 
             return UserProfile.builder()
                     .firstName(jwt.getClaimAsString("given_name"))
