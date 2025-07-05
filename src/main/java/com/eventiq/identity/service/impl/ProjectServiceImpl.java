@@ -6,6 +6,7 @@ import com.eventiq.identity.repository.ProjectRepository;
 import com.eventiq.identity.service.ProjectService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,7 @@ public class ProjectServiceImpl implements ProjectService {
                 projectDto.setProjectName(project.getProjectName());
                 projectDto.setProjectId(project.getProjectId());
                 projectDto.setIsActive(project.getIsActive());
+                projectDto.setCreatedAt(project.getCreatedAt());
                 projectDtoList.add(projectDto);
             }
 
@@ -51,6 +53,7 @@ public class ProjectServiceImpl implements ProjectService {
         newProject.setUserId(userId);
         newProject.setProjectName(projectDto.getProjectName());
         newProject.setIsActive(true);
+        newProject.setCreatedAt(LocalDateTime.now());
         newProject.setProjectId(projectId);
 
         newProject = projectRepository.save(newProject);
@@ -58,6 +61,28 @@ public class ProjectServiceImpl implements ProjectService {
         projectDto.setProjectId(projectId);
         projectDto.setIsActive(newProject.getIsActive());
         return projectDto;
+    }
+
+    @Override
+    public void deleteProject(String userId, String projectId) {
+        Optional<Project> project = projectRepository.findByProjectId(projectId);
+        if(project.isPresent() && project.get().getUserId().equals(userId)){
+            projectRepository.deleteById(project.get().getId());
+        } else {
+            throw new RuntimeException("Project not found.");
+        }
+    }
+
+    @Override
+    public void changeStatus(String userId, String projectId) {
+        Optional<Project> project = projectRepository.findByProjectId(projectId);
+        if(project.isPresent() && project.get().getUserId().equals(userId)){
+            project.get().setIsActive(!project.get().getIsActive());
+            projectRepository.save(project.get());
+        } else {
+            throw new RuntimeException("Project not found.");
+        }
+
     }
 
     private static String generateProjectId(String projectName){

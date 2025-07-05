@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     Optional<List<Project>> findAllByUserId(String userId);
+
+    Optional<Project> findByProjectId(String projectId);
 }

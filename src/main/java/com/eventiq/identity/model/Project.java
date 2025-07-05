@@ -7,6 +7,8 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -21,6 +23,8 @@ public class Project {
     private String projectName;
 
     private String projectId;
+
+    private LocalDateTime createdAt;
 
     private Boolean isActive;
 }

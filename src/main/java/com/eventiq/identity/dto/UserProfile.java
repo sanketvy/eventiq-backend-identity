@@ -12,4 +12,10 @@ public class UserProfile {
     private String lastName;
 
     private String email;
+
+    private String phoneNo;
+
+    private String company;
+
+    private String role;
 }
