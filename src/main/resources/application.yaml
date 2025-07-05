@@ -39,3 +39,7 @@ spring:
         data-key: data
 server:
   port: 9051
+
+stripe:
+  secret:
+    key: sk_test_51RhGXsR0zLfhT2uZKLohhOearoxBPJBuRmLVoouDn7ppqTX5m4soJtCjuPENguAHE7MjeXIFj0PSstTmmRlbmfVs00db4szozG
